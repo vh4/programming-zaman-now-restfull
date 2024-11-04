@@ -8,4 +8,7 @@ export interface User{
 export interface UserResponse{
     name:string,
     username:string,
+    accessToken?:string,
+    refreshToken?:string,
+    expiredIn?:string,
 }

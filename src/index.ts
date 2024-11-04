@@ -7,7 +7,7 @@ import helmet from "helmet";
 function boostraps(){
 
     //initila env
-    new Env();
+    const env = new Env();
 
     //initial express
     const app = express();
@@ -18,8 +18,9 @@ function boostraps(){
     app.use(helmet());
     app.use(cors());
 
-    //check conneection databases
-    app.listen(Env.port);
+    //running....
+    env.runIn();
+    app.listen(env.port());
     
 }
 

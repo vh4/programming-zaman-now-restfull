@@ -1,13 +1,11 @@
-import { User } from "../../intefaces/user.interface";
 import { ErrorHandler } from "../../handle/error.handle";
-import { ObjectSchema } from "joi";
+import { ObjectSchema, StringSchema } from "joi";
 
 class Validator {
-    validate(schema: ObjectSchema<User>, request:User): User {
-        
+    validate<T>(schema: ObjectSchema<T>| StringSchema<T>, request: T): T {
         const result = schema.validate(request, {
-            abortEarly:false,
-            allowUnknown:false,
+            abortEarly: false,
+            allowUnknown: false,
         });
 
         if (result.error) {

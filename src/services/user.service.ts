@@ -1,17 +1,27 @@
 import bcrypt from 'bcrypt'
-import { User, UserResponse } from "../intefaces/user.interface";
+import { User,UserResponse } from "../intefaces/user.interface";
 import userValidation from "../helpers/validation/user.validation";
 import validator from "../helpers/validation/validation";
 import { prismaClient } from "../databases/index";
 import { ErrorHandler } from "handle/error.handle";
-
+import jwt from 'jsonwebtoken';
+import Env from '../env/env';
 
 class UserService{
 
     private request: User; 
+    private secretAccess:string = '';
+    private secretRefresh:string = '';
+    private accessToken:string = '';
+    private refreshToken:string = '';
 
     constructor(request:User){
         this.request = request;
+        
+        const env = new Env();
+        this.secretAccess  = env.getSecretAccess();
+        this.secretRefresh = env.getSecretRefresh();
+
     }
     async register(): Promise<UserResponse> {
         
@@ -36,6 +46,95 @@ class UserService{
                 name: true
             }
         });
+    }
+
+    async login(): Promise<UserResponse> {
+
+        const data = {
+            username:this.request.username,
+            password:this.request.password
+        } as User;
+
+        const user = validator.validate(
+            userValidation.create(), 
+            data);
+
+        const isExist = await prismaClient.user.findUnique({
+            where:{
+                username:user.username
+            },
+            select:{
+                username:true,
+                password:true,
+                name:true
+            }
+        })
+
+        if(!isExist) 
+            throw new ErrorHandler(401, '01', 'Username or password is wrong!');
+
+        const password = await bcrypt.compare(user.password, isExist.password);
+        if(!password) 
+            throw new ErrorHandler(401, '01', 'Username or password is wrong!');
+
+        this.accessToken = jwt.sign({
+            username:user.username,
+            name:user.name,
+        }, this.secretAccess, {
+            expiresIn:'60s'
+        });
+
+        this.refreshToken = jwt.sign({
+            username:user.username,
+            name:user.name,
+        }, this.secretRefresh, {
+            expiresIn:'3600s'
+        });
+
+        const updated = prismaClient.user.update({
+            data:{
+                token:this.refreshToken
+            },
+            where:{
+                username:user.username
+            },
+            select:{
+                username:true,
+                name:true,
+            }
+        });
+
+        return {
+            ...updated,
+            accessToken:this.accessToken,
+            refreshToken:this.refreshToken,
+            expiredIn:60
+        }
+
+    }
+    
+    async get(): Promise<UserResponse>{
+
+        const username:string = validator.validate(userValidation.get(), this.request.username);
+        
+        const resp = await prismaClient.user.findUnique({
+            where:{
+                username:username
+            },
+            select:{
+                username:true,
+                name:true,
+            }
+        });
+
+        if(!resp) 
+            throw new ErrorHandler(400, '03', 'Username not found!')
+        
+        return {
+            username:resp.username,
+            name:resp.name
+        };
+        
     }
 
 }

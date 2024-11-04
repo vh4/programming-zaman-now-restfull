@@ -21,14 +21,14 @@ class UserValidation {
         });
     }
 
-    login(): Joi.ObjectPropertiesSchema<User>{
+    login(): Joi.ObjectSchema<User>{
         return Joi.object<User>({
-            username:Joi.string().max(100).required(),
-            password:Joi.string().max(100).required()
-        })
+            username: Joi.string().max(100).required(),
+            password: Joi.string().max(100).required(),
+        });
     }
 
-    get(){
+    get(): Joi.StringSchema {
         return Joi.string().max(100).required();
     }
 
