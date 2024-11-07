@@ -22,6 +22,15 @@ export const prismaClient = new PrismaClient({
     ]
 });
 
+export async function initDB(): Promise<void> {
+  try {
+      await prismaClient.$connect();
+      logger.info('Prisma client connected successfully');
+  } catch (error) {
+      logger.error('Error connecting Prisma client:', error);
+  }
+}
+
 prismaClient.$on('error', (e) => {
     logger.error(e);
 });

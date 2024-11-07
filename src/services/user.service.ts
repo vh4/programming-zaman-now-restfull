@@ -3,31 +3,29 @@ import { User,UserResponse } from "../intefaces/user.interface";
 import userValidation from "../helpers/validation/user.validation";
 import validator from "../helpers/validation/validation";
 import { prismaClient } from "../databases/index";
-import { ErrorHandler } from "handle/error.handle";
+import { ErrorHandler } from "../handle/error.handle";
 import jwt from 'jsonwebtoken';
 import Env from '../env/env';
 
 class UserService{
 
-    private request: User; 
     private secretAccess:string = '';
     private secretRefresh:string = '';
     private accessToken:string = '';
     private refreshToken:string = '';
 
-    constructor(request:User){
-        this.request = request;
+    constructor(){
         
         const env = new Env();
         this.secretAccess  = env.getSecretAccess();
         this.secretRefresh = env.getSecretRefresh();
 
     }
-    async register(): Promise<UserResponse> {
+    async register(request:User): Promise<UserResponse> {
         
         const user = validator.validate(
             userValidation.create(), 
-            this.request);
+            request);
 
         const countUser = await prismaClient.user.count({
             where: {
@@ -48,11 +46,11 @@ class UserService{
         });
     }
 
-    async login(): Promise<UserResponse> {
+    async login(request:User): Promise<UserResponse> {
 
         const data = {
-            username:this.request.username,
-            password:this.request.password
+            username:request.username,
+            password:request.password
         } as User;
 
         const user = validator.validate(
@@ -113,9 +111,9 @@ class UserService{
 
     }
     
-    async get(): Promise<UserResponse>{
+    async get(reqUsername:string): Promise<UserResponse>{
 
-        const username:string = validator.validate(userValidation.get(), this.request.username);
+        const username:string = validator.validate(userValidation.get(), reqUsername);
         
         const resp = await prismaClient.user.findUnique({
             where:{
