@@ -6,6 +6,7 @@ declare global {
                 mid: string;
                 ip:string;
             };
+            user?: object;
             module?: string;
             requests?:any;
             responses?:any;

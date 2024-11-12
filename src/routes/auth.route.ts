@@ -12,7 +12,6 @@ class Router {
     private init() {
         this.router.post('/sign_in', this.handleLogin.bind(this));
         this.router.post('/create', this.handleCreate.bind(this));
-        this.router.get('/profile/:username', this.handleProfile.bind(this));
     }
 
     private async handleLogin(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -39,24 +38,6 @@ class Router {
 
             req.requests  = user;
             const result = await this.service.register(user);
-            req.responses = result;
-
-            res.status(200).json({
-                response_code:'00',
-                response_message:'Success',
-                data: result
-            });
-        } catch (error) {
-            next(error);
-        }
-    }
-
-    private async handleProfile(req: Request, res: Response, next: NextFunction): Promise<void> {
-        try {
-            const username = req.params.username;
-
-            req.requests  = username;
-            const result = await this.service.get(username);
             req.responses = result;
 
             res.status(200).json({
