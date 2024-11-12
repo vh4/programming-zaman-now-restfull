@@ -32,17 +32,17 @@ export async function initDB(): Promise<void> {
 }
 
 prismaClient.$on('error', (e) => {
-    logger.error(e);
+    logger.error(e.message);
 });
 
 prismaClient.$on('warn', (e) => {
-    logger.warn(e);
+    logger.warn(e.message);
 });
 
 prismaClient.$on('info', (e) => {
-    logger.info(e);
+    logger.warn(e.message);
 });
 
 prismaClient.$on('query', (e) => {
-    logger.info(e);
+    logger.warn(e.query);
 });

@@ -9,32 +9,34 @@ import { ErrorHandlerMain } from "./handle/error.handle";
 import { SuccessResponse } from "./handle/success.handle";
 import { MID } from "./middleware/mid.middleware";
 
+//initial express
+export const app = express();
+
+//bosrtrapping all function.
 function boostraps(){
 
     //initila env
     const env = new Env();
 
-    //initial express
-    const app = express();
-
     //init DB
     initDB();
 
     //use for middlewar express
+    app.use(MID);
     app.use(express.json());
     app.use(cookieParser());
     app.use(helmet());
     app.use(cors());
-    app.use(MID);
 
     //running....
     env.runIn();
-    app.listen(env.port());
+    env.testing() && app.listen(env.port());
+
+    //router
     app.use(authRoute)
     app.use(SuccessResponse);
     app.use(ErrorHandlerMain);
 
 }
-
 
 boostraps();

@@ -24,7 +24,7 @@ export async function SuccessResponse(error:any, req: Request, res: Response): P
         
     logger.info(`MID ${req.payload.mid} Error on success handler request  => ${JSON.stringify(req.requests)}`);
     logger.info(`MID ${req.payload.mid} Error on success handler response => ${JSON.stringify(req.responses)}`);
-    logger.info(`MID ${req.payload.mid} Error on success handler response => ${JSON.stringify(error instanceof Error)}`);
+    logger.info(`MID ${req.payload.mid} Error on success handler error    => ${JSON.stringify(error.message instanceof Error)}`);
 
     //save to db 
     //if you want to save req and resp to db.

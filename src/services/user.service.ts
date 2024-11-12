@@ -27,6 +27,7 @@ class UserService{
             userValidation.create(), 
             request);
 
+
         const countUser = await prismaClient.user.count({
             where: {
                 username: user.username
@@ -34,7 +35,7 @@ class UserService{
         });
 
         if (countUser > 0)
-            throw new ErrorHandler(400, '03', 'Username already exists!');
+            throw new ErrorHandler(400, '03', {username: 'Username already exists!' });
 
         user.password = await bcrypt.hash(user.password, 10);
         return prismaClient.user.create({
@@ -48,14 +49,9 @@ class UserService{
 
     async login(request:User): Promise<UserResponse> {
 
-        const data = {
-            username:request.username,
-            password:request.password
-        } as User;
-
         const user = validator.validate(
-            userValidation.create(), 
-            data);
+            userValidation.login(), 
+            request);
 
         const isExist = await prismaClient.user.findUnique({
             where:{
@@ -69,11 +65,11 @@ class UserService{
         })
 
         if(!isExist) 
-            throw new ErrorHandler(401, '01', 'Username or password is wrong!');
+            throw new ErrorHandler(401, '01', {username: 'Username or password is wrong!' });
 
         const password = await bcrypt.compare(user.password, isExist.password);
         if(!password) 
-            throw new ErrorHandler(401, '01', 'Username or password is wrong!');
+            throw new ErrorHandler(401, '01', {username: 'Username or password is wrong!' });
 
         this.accessToken = jwt.sign({
             username:user.username,
@@ -89,7 +85,7 @@ class UserService{
             expiresIn:'3600s'
         });
 
-        const updated = prismaClient.user.update({
+        const updated = await prismaClient.user.update({
             data:{
                 token:this.refreshToken
             },
@@ -104,10 +100,10 @@ class UserService{
 
         return {
             ...updated,
-            accessToken:this.accessToken,
-            refreshToken:this.refreshToken,
-            expiredIn:60
-        }
+            accessToken: this.accessToken,
+            refreshToken: this.refreshToken,
+            expiredIn: '60s'
+        };
 
     }
     
@@ -126,7 +122,7 @@ class UserService{
         });
 
         if(!resp) 
-            throw new ErrorHandler(400, '03', 'Username not found!')
+            throw new ErrorHandler(400, '03', {username: 'Username not found!' })
         
         return {
             username:resp.username,

@@ -9,7 +9,14 @@ class Validator {
         });
 
         if (result.error) {
-            throw new ErrorHandler(400, '68', result.error.message);
+           
+            const errorMessage = result.error.details.reduce((arr:any, detail) => {
+                const key = detail.path.join();
+                arr[key] = detail.message;
+                return arr;
+            }, {});
+
+            throw new ErrorHandler(400, '03', errorMessage);
         } else {
             return result.value;
         }
