@@ -12,7 +12,7 @@ class Router{
 	}
 
 	private init(){
-		this.router.get('/me', Middleware.authenticate, this.handleProfile.bind(this));
+		this.router.get('/me/:username', Middleware.authenticate, this.handleProfile.bind(this));
 	}
 
 	private async handleProfile(req: Request, res: Response, next: NextFunction): Promise<void> {

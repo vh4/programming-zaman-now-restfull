@@ -4,8 +4,8 @@ import userValidation from "../helpers/validation/user.validation";
 import validator from "../helpers/validation/validation";
 import { prismaClient } from "../databases/index";
 import { ErrorHandler } from "../handle/error.handle";
-import jwt from 'jsonwebtoken';
 import Env from '../env/env';
+import { JwtCreate } from '../helpers/global';
 
 class UserService{
 
@@ -13,12 +13,16 @@ class UserService{
     private secretRefresh:string = '';
     private accessToken:string = '';
     private refreshToken:string = '';
+    private expiretRefresh:string = '';
+    private expireAccess:string = '';
 
     constructor(){
         
         const env = new Env();
         this.secretAccess  = env.getSecretAccess();
         this.secretRefresh = env.getSecretRefresh();
+        this.expiretRefresh = env.getExpiredRefresh();
+        this.expireAccess = env.getExpiredAccess();
 
     }
     async register(request:User): Promise<UserResponse> {
@@ -71,19 +75,8 @@ class UserService{
         if(!password) 
             throw new ErrorHandler(401, '01', {username: 'Username or password is wrong!' });
 
-        this.accessToken = jwt.sign({
-            username:user.username,
-            name:user.name,
-        }, this.secretAccess, {
-            expiresIn:'60s'
-        });
-
-        this.refreshToken = jwt.sign({
-            username:user.username,
-            name:user.name,
-        }, this.secretRefresh, {
-            expiresIn:'3600s'
-        });
+        this.accessToken = await JwtCreate(user, this.secretAccess, this.expireAccess);
+        this.refreshToken = await JwtCreate(user, this.secretRefresh, this.expiretRefresh);
 
         const updated = await prismaClient.user.update({
             data:{
@@ -109,7 +102,7 @@ class UserService{
     
     async get(reqUsername:string): Promise<UserResponse>{
 
-        const username:string = validator.validate(userValidation.get(), reqUsername);
+        const username = validator.validate(userValidation.get(), reqUsername);
         
         const resp = await prismaClient.user.findUnique({
             where:{

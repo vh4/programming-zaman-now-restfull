@@ -20,3 +20,9 @@ export interface UserLogin{
     username:string,
     password:string,
 }
+
+//for jwt 
+export interface UserJwt{
+    username:string,
+    name:string,
+}

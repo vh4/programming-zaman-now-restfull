@@ -5,9 +5,15 @@ import logger from "../helpers/logger";
 import { ErrorHandler } from "../handle/error.handle";
 
 class MiddlewareAuth {
-  private env = new Env();
 
-  public authenticate(req: Request, res: Response, next: NextFunction): void {
+  private secretAccess: string;
+
+  constructor(){
+    const env = new Env();
+    this.secretAccess = env.getSecretAccess();
+  }
+
+  public authenticate = (req: Request, res: Response, next: NextFunction): void => {
     const authHeader = req.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
@@ -15,11 +21,12 @@ class MiddlewareAuth {
     }
 
     const token = authHeader.replace(/^Bearer\s+/i, "");
+    console.log(this.secretAccess);
 
     try {
       const payload = jwt.verify(
         token,
-        this.env.getSecretAccess()
+        this.secretAccess
       ) as JwtPayload;
       req.user = payload;
       next();

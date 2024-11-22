@@ -4,6 +4,8 @@ import cookieParser from "cookie-parser";
 import cors from 'cors'
 import helmet from "helmet";
 import authRoute from "./routes/auth.route";
+import authUser from "./routes/user.route";
+import NOT_FOUND from './routes/404.route'
 import {initDB} from './databases/index'
 import { ErrorHandlerMain } from "./handle/error.handle";
 import { SuccessResponse } from "./handle/success.handle";
@@ -33,7 +35,11 @@ function boostraps(){
     env.testing() && app.listen(env.port());
 
     //router
-    app.use(authRoute)
+    app.use(authRoute);
+    app.use(authUser);
+    app.use(NOT_FOUND);
+    
+    //handle success and error in end of router
     app.use(SuccessResponse);
     app.use(ErrorHandlerMain);
 

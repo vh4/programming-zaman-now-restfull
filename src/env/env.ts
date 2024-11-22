@@ -9,16 +9,27 @@ env.config({
 class Env {
   private appName: string = process.env.APP_NAME || "";
   public ports: number = parseInt(process.env.PORT || "3000");
-  private secretRefresh: string = process.env.ACCESS_TOKEN || "";
-  private secretAccess: string = process.env.REFRESH_TOKEN || "";
+  private secretRefresh: string = process.env.REFRESH_TOKEN || "";
+  private secretAccess: string = process.env.ACCESS_TOKEN || "";
   private nodeEnv: string = process.env.NODE_ENV || "";
+  private expiredInAccess: string = process.env.EXPIRED_ACCESS_TOKEN || "";
+  private expiredInRefresh: string = process.env.EXPIRED_REFRESH_TOKEN || "";
+
 
   public getSecretRefresh(): string {
-    return this.secretAccess;
+    return this.secretRefresh;
+  }
+
+  public getExpiredRefresh(): string {
+    return this.expiredInRefresh;
+  }
+
+  public getExpiredAccess(): string {
+    return this.expiredInAccess;
   }
 
   public getSecretAccess(): string {
-    return this.secretRefresh;
+    return this.secretAccess;
   }
 
   public testing(): boolean {
